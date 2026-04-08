@@ -1,7 +1,6 @@
 """adn contacts — Manage contacts."""
 
 from rich.console import Console
-from rich.table import Table
 
 from adn.storage import Storage
 
@@ -28,18 +27,15 @@ def _list_contacts(storage) -> int:
         print("[yellow]No contacts saved.[/yellow]")
         return 0
     
-    table = Table(title="Contacts")
-    table.add_column("Ed25519 Pubkey", style="cyan")
-    table.add_column("X25519 Pubkey", style="green")
-    table.add_column("Nickname", style="white")
+    console = Console()
+    console.print(f"\n[bold cyan]Contacts ({len(contacts)})[/bold cyan]")
     
     for ed_pub, contact in contacts.items():
         x_pub = contact.get("x25519_pub", "")
-        nick = contact.get("nickname", "-")
-        table.add_row(ed_pub, x_pub, nick)
-    
-    console = Console()
-    console.print(table)
+        nick = contact.get("nickname", "-") or "-"
+        console.print(f"\n[green]Nickname:[green] {nick}")
+        console.print(f"[cyan]Ed25519:[cyan] {ed_pub}")
+        console.print(f"[yellow]X25519:[yellow] {x_pub}")
     
     return 0
 

@@ -43,6 +43,13 @@ def cmd_respond(args) -> int:
         sign_func=lambda msg: storage.sign_message(msg),
     )
     
+    # Get intent details before responding
+    inbox = api.get_inbox()
+    intent = next((i for i in inbox if i.id == intent_id), None)
+    if not intent:
+        console.print(f"[yellow]Intent not found in inbox[/yellow]")
+        return 1
+    
     x25519_pub = storage.get_x25519_pub()
     
     try:
@@ -52,6 +59,12 @@ def cmd_respond(args) -> int:
             action = "accepted" if accept else "rejected"
             console.print(f"[green]✓ Intent {action}[/green]")
             console.print(f"  Intent ID: {intent_id}")
+            
+            # Auto-add contact after accepting
+            if accept and intent.x25519_pub:
+                storage.add_contact(intent.from_pubkey, intent.x25519_pub, intent.nickname)
+                console.print(f"[green]✓ Contact added[/green]")
+            
             return 0
         else:
             console.print("[red]Failed to respond to intent[/red]")

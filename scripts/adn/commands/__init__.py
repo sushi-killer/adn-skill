@@ -7,7 +7,7 @@ from adn.commands.check import cmd_check
 from adn.commands.intent import cmd_intent
 from adn.commands.respond import cmd_respond
 from adn.commands.matches import cmd_matches
-from adn.commands.chat import cmd_chat, cmd_send, cmd_messages
+from adn.commands.chat import cmd_chat
 from adn.commands.inbox import cmd_inbox
 from adn.commands.log import cmd_log, cmd_history
 from adn.commands.heartbeat import cmd_heartbeat
@@ -23,8 +23,6 @@ __all__ = [
     "cmd_respond",
     "cmd_matches",
     "cmd_chat",
-    "cmd_send",
-    "cmd_messages",
     "cmd_inbox",
     "cmd_log",
     "cmd_history",

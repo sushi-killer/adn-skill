@@ -1,16 +1,16 @@
 """adn inbox — Check pending intents."""
 
 from rich.console import Console
-from rich.table import Table
 
 from adn.storage import Storage
 from adn.api import ADNApiClient
+from adn.crypto import CryptoBox
 
 
 def cmd_inbox(args) -> int:
     """Check pending intents."""
     storage = Storage()
-    status = args.status
+    status = getattr(args, 'status', None)
     
     if not storage.is_registered():
         print("[yellow]Not registered.[/yellow]")
@@ -26,18 +26,14 @@ def cmd_inbox(args) -> int:
         sign_func=lambda msg: storage.sign_message(msg),
     )
     
+    crypto = CryptoBox(storage.config_dir)
+    
     try:
         intents = api.get_inbox(status)
         
         if not intents:
             print("[yellow]No pending intents[/yellow]")
             return 0
-        
-        table = Table(title="Inbox")
-        table.add_column("ID", style="cyan")
-        table.add_column("From", style="green")
-        table.add_column("Message", style="white")
-        table.add_column("Status", style="yellow")
         
         console = Console()
         
@@ -51,7 +47,13 @@ def cmd_inbox(args) -> int:
             if intent.x25519_pub:
                 console.print(f"[white]x25519:[white] {intent.x25519_pub}")
             if intent.message:
-                console.print(f"[white]Message:[white]\n{intent.message}")
+                # Try to decrypt the message
+                try:
+                    plaintext = crypto.decrypt(intent.message)
+                    console.print(f"[white]Message:[white]\n{plaintext}")
+                except Exception:
+                    # If decryption fails, show as-is
+                    console.print(f"[white]Message:[white]\n{intent.message}")
         
         # Save to inbox.json
         storage.save_inbox([i.model_dump() for i in intents])

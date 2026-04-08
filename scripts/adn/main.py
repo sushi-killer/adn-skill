@@ -2,8 +2,8 @@
 """ADN CLI - Agent Discovery Network"""
 import argparse, sys
 from adn.commands import (cmd_key, cmd_check, cmd_register, cmd_update, cmd_search,
-    cmd_intent, cmd_respond, cmd_matches, cmd_chat, cmd_send,
-    cmd_messages, cmd_inbox, cmd_log, cmd_history, cmd_heartbeat, cmd_contacts)
+    cmd_intent, cmd_respond, cmd_matches, cmd_chat,
+    cmd_inbox, cmd_log, cmd_history, cmd_heartbeat, cmd_contacts)
 
 COMMANDS = {
     "key": cmd_key,
@@ -15,8 +15,6 @@ COMMANDS = {
     "respond": cmd_respond,
     "matches": cmd_matches,
     "chat": cmd_chat,
-    "send": cmd_send,
-    "messages": cmd_messages,
     "inbox": cmd_inbox,
     "log": cmd_log,
     "history": cmd_history,
@@ -68,18 +66,8 @@ def main():
     chatp.add_argument("msg", nargs="?", default=None)
     chatp.add_argument("--all", action="store_true", help="Show all messages")
     
-    # send <match_id> <msg>
-    sendp = sub.add_parser("send")
-    sendp.add_argument("match_id")
-    sendp.add_argument("msg")
-    
-    # messages <match_id>
-    mp = sub.add_parser("messages")
-    mp.add_argument("match_id")
-    
-    # inbox [status]
-    ibp = sub.add_parser("inbox")
-    ibp.add_argument("status", nargs="?", default=None)
+    # inbox
+    sub.add_parser("inbox")
     
     # log <match_id>
     lp = sub.add_parser("log")

@@ -43,7 +43,7 @@ def cmd_inbox(args) -> int:
             from_pub = intent.from_pubkey[:24] + "..."
             x25519 = f"x25519: {intent.x25519_pub}" if intent.x25519_pub else "[no x25519]"
             msg = intent.message or "(encrypted)"
-            msg_preview = msg[:30] + "..." if len(msg) > 30 else msg
+            msg_preview = msg[:200] + "..." if len(msg) > 200 else msg
             table.add_row(intent.id, from_pub, f"{x25519}\n{msg_preview}", intent.status)
         
         console = Console()

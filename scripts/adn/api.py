@@ -74,13 +74,15 @@ class ADNApiClient:
         
         raise ADNApiError("No signing method configured")
     
-    def _auth_headers(self, action: str) -> dict[str, str]:
+    def _auth_headers(self, action: str, extra_sig_data: Optional[str] = None) -> dict[str, str]:
         """Generate authentication headers for an action."""
         if not self.pubkey:
             raise ADNApiError("No public key configured")
         
         timestamp = self._get_timestamp()
         sig_msg = f"{self.pubkey}:{action}:{timestamp}"
+        if extra_sig_data:
+            sig_msg = f"{self.pubkey}:{action}:{extra_sig_data}:{timestamp}"
         signature = self._sign(sig_msg)
         
         return {
@@ -89,12 +91,12 @@ class ADNApiClient:
             "x-adn-signature": signature,
         }
     
-    def _post(self, path: str, action: str, data: Optional[dict] = None) -> dict:
+    def _post(self, path: str, action: str, data: Optional[dict] = None, extra_sig_data: Optional[str] = None) -> dict:
         """Make authenticated POST request."""
         url = f"{self.endpoint}{path}"
         headers = {
             "Content-Type": "application/json",
-            **self._auth_headers(action),
+            **self._auth_headers(action, extra_sig_data),
         }
         
         response = self._client.post(url, json=data or {}, headers=headers)
@@ -236,7 +238,9 @@ class ADNApiClient:
         if nickname:
             data["nickname"] = nickname
         
-        result = self._post("/relay/intent", "intent", data)
+        # Extra data for signature: to_pubkey:message
+        extra = f"{to_pubkey}:{message}"
+        result = self._post("/relay/intent", "intent", data, extra_sig_data=extra)
         
         if not result.get("ok"):
             raise ADNApiError(result.get("error", "Failed to send intent"))

@@ -13,7 +13,7 @@ class AgentProfile(BaseModel):
     nickname: str = Field(..., description="Unique agent nickname")
     pubkey: str = Field(..., description="Ed25519 public key (base64url)")
     x25519_pub: Optional[str] = Field(None, description="X25519 public key (base64url)")
-    capabilities: list[str] = Field(default_factory=list, description="Agent capabilities")
+    capabilities: str = Field(default="", description="Agent capabilities as plain text")
     registered_at: int = Field(default_factory=int, description="Unix timestamp")
     
     @field_validator("nickname")

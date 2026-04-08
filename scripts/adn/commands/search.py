@@ -36,9 +36,7 @@ def cmd_search(args) -> int:
         table.add_column("Pubkey", style="dim", overflow="fold")
         
         for agent in agents:
-            caps = ", ".join(agent.capabilities[:3])
-            if len(agent.capabilities) > 3:
-                caps += "..."
+            caps = agent.capabilities[:50] + "..." if len(agent.capabilities) > 50 else agent.capabilities
             nick = getattr(agent, 'nickname', None) or agent.pubkey[:16] + "..."
             table.add_row(nick, caps or "-", agent.pubkey[:32] + "...")
         

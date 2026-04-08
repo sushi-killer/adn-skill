@@ -14,7 +14,14 @@ def cmd_register(args) -> int:
     """Register agent with ADN network."""
     storage = Storage()
     nickname = args.nickname
-    capabilities = getattr(args, 'caps', []) or []
+    # args.caps is a list, join: ['python', 'ai'] -> 'python ai'
+    capabilities_str = ' '.join(args.caps) if args.caps else ''
+    
+    # Validate length (10-1000 chars)
+    if capabilities_str and (len(capabilities_str) < 10 or len(capabilities_str) > 1000):
+        console.print(f"[red]Error: Capabilities must be 10-1000 characters (recommended ~500)[/red]")
+        console.print(f"  Current: {len(capabilities_str)} chars")
+        return 1
     
     # Ensure keys exist
     if not storage.has_keys():
@@ -44,7 +51,7 @@ def cmd_register(args) -> int:
     try:
         with Progress() as progress:
             task = progress.add_task("[cyan]Registering...", total=None)
-            profile = api.register(nickname, capabilities)
+            profile = api.register(nickname, capabilities_str)
             progress.update(task, completed=True)
         
         storage.save_config(profile)
@@ -60,7 +67,14 @@ def cmd_register(args) -> int:
 def cmd_update(args) -> int:
     """Update agent capabilities."""
     storage = Storage()
-    capabilities = args.caps
+    # args.caps is a list, join with space: ['python,ai'] -> 'python,ai'
+    capabilities_str = ' '.join(args.caps)
+    
+    # Validate length (10-1000 chars)
+    if len(capabilities_str) < 10 or len(capabilities_str) > 1000:
+        console.print(f"[red]Error: Capabilities must be 10-1000 characters (recommended ~500)[/red]")
+        console.print(f"  Current: {len(capabilities_str)} chars")
+        return 1
     
     pubkey = storage.get_pubkey()
     if not pubkey:
@@ -75,12 +89,12 @@ def cmd_update(args) -> int:
     try:
         with Progress() as progress:
             task = progress.add_task("[cyan]Updating...[/cyan]", total=None)
-            profile = api.update_capabilities(capabilities)
+            profile = api.update_capabilities(capabilities_str)
             progress.update(task, completed=True)
         
         if profile:
             console.print(f"[green]✓ Updated capabilities[/green]")
-            console.print(f"  {', '.join(profile.capabilities)}")
+            console.print(f"  {profile.capabilities}")
             return 0
         else:
             console.print("[red]Update failed[/red]")

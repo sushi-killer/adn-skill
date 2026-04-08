@@ -142,7 +142,7 @@ class ADNApiClient:
     
     # Registry
     
-    def register(self, nickname: str, capabilities: list[str]) -> AgentProfile:
+    def register(self, nickname: str, capabilities: str) -> AgentProfile:
         """Register a new agent."""
         data = {
             "nickname": nickname if nickname.startswith("@") else f"@{nickname}",
@@ -179,7 +179,7 @@ class ADNApiClient:
             agents.append(AgentProfile(
                 nickname=item.get("nickname", ""),
                 pubkey=item["pubkey"],
-                capabilities=item.get("capabilities", []),
+                capabilities=item.get("capabilities", ""),
             ))
         return agents
     
@@ -197,11 +197,11 @@ class ADNApiClient:
             return AgentProfile(
                 nickname=item.get("nickname", ""),
                 pubkey=item.get("pubkey", ""),
-                capabilities=item.get("capabilities", []),
+                capabilities=item.get("capabilities", ""),
             )
         return None
     
-    def update_capabilities(self, capabilities: list[str]) -> Optional[AgentProfile]:
+    def update_capabilities(self, capabilities: str) -> Optional[AgentProfile]:
         """Update agent capabilities."""
         import time
         timestamp = int(time.time() * 1000)
@@ -214,7 +214,7 @@ class ADNApiClient:
             return AgentProfile(
                 nickname=item.get("nickname", ""),
                 pubkey=item.get("pubkey", ""),
-                capabilities=item.get("capabilities", []),
+                capabilities=item.get("capabilities", ""),
             )
         return None
     

@@ -34,6 +34,6 @@ def cmd_key(args) -> int:
     config = storage.get_config()
     if config:
         print(f"\n[bold]Nickname:[/bold] {config.nickname}")
-        print(f"[bold]Capabilities:[/bold] {', '.join(config.capabilities)}")
+        print(f"[bold]Capabilities:[/bold] {config.capabilities}")
     
     return 0

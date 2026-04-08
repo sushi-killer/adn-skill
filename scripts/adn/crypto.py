@@ -8,6 +8,7 @@ ADN uses:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -58,6 +59,21 @@ async function main() {{
 main().catch(e => {{ console.error(e.message); process.exit(1); }});
 """
 
+SIGN_SCRIPT_STDIN = """
+const sodium = require('libsodium-wrappers');
+const fs = require('fs');
+
+async function main() {{
+    const data = JSON.parse(require('fs').readFileSync(0, 'utf-8'));
+    const priv = fs.readFileSync(data.key_path, 'utf-8').trim();
+    const msg = data.message;
+    const sig = sodium.crypto_sign_detached(msg, sodium.from_base64(priv));
+    console.log(sodium.to_base64(sig));
+}}
+
+main().catch(e => {{ console.error(e.message); process.exit(1); }});
+"""
+
 GENERATE_KEYS_SCRIPT = r"""
 const sodium = require('libsodium-wrappers');
 
@@ -81,12 +97,14 @@ main().catch(e => { console.error(e.message); process.exit(1); });
 SIGN_SCRIPT = """
 const sodium = require('libsodium-wrappers');
 const fs = require('fs');
+const Buffer = require('buffer').Buffer;
 
 async function main() {{
     await sodium.ready;
     
     const priv = fs.readFileSync('{key_priv}', 'utf8').trim();
-    const msg = '{message}';
+    // Decode message from base64
+    const msg = Buffer.from('{{message_b64}}', 'base64').toString('utf8');
     
     const sig = sodium.crypto_sign_detached(msg, sodium.from_base64(priv));
     console.log(sodium.to_base64(sig));
@@ -186,11 +204,23 @@ def sign_message(message: str, ed25519_priv_path: str) -> str:
     Returns:
         Ed25519 signature (base64)
     """
-    safe_message = message.replace("`", "\\`").replace("$", "\\$").replace("\\", "\\\\")
-    script = SIGN_SCRIPT.format(
-        key_priv=ed25519_priv_path,
-        message=safe_message
-    )
+    import json as json_module
+    # Escape message for JavaScript string using JSON.stringify
+    msg_json = json_module.dumps(message)
+    script = f'''
+const sodium = require('libsodium-wrappers');
+const fs = require('fs');
+
+async function main() {{
+    await sodium.ready;
+    const priv = fs.readFileSync('{ed25519_priv_path}', 'utf-8').trim();
+    const msg = JSON.parse('{msg_json.replace("'", "\\'")}');
+    const sig = sodium.crypto_sign_detached(msg, sodium.from_base64(priv));
+    console.log(sodium.to_base64(sig));
+}}
+
+main().catch(e => {{ console.error(e.message); process.exit(1); }});
+'''
     return _run_node(script)
 
 

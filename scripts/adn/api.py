@@ -276,6 +276,7 @@ class ADNApiClient:
             envelope = item.get("envelope", {})
             message = envelope.get("ciphertext", "")
             x25519_pub = envelope.get("x25519_pub", None)
+            nickname = envelope.get("nickname", None)
             
             intents.append(Intent(
                 id=item.get("id", ""),
@@ -283,6 +284,7 @@ class ADNApiClient:
                 to_pubkey=item.get("to_pubkey"),
                 message=message,
                 x25519_pub=x25519_pub,
+                nickname=nickname,
                 status=item.get("status", "pending"),
                 created_at=item.get("created_at", 0),
             ))

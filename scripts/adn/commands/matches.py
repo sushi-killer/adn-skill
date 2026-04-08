@@ -1,7 +1,7 @@
 """adn matches — List active matches."""
 
+from datetime import datetime
 from rich.console import Console
-from rich.table import Table
 
 from adn.storage import Storage
 from adn.api import ADNApiClient
@@ -32,19 +32,34 @@ def cmd_matches(args) -> int:
             print("[yellow]No matches yet.[/yellow]")
             return 0
         
-        table = Table(title="Active Matches")
-        table.add_column("Match ID", style="cyan")
-        table.add_column("Peer", style="green")
-        table.add_column("Created", style="dim")
-        
-        from datetime import datetime
-        for match in matches:
-            peer = match.get_peer(pubkey)
-            created = datetime.fromtimestamp(match.created_at / 1000).strftime("%Y-%m-%d %H:%M")
-            table.add_row(match.id, peer, created)
-        
         console = Console()
-        console.print(table)
+        console.print(f"\n[bold cyan]Active Matches ({len(matches)})[/bold cyan]\n")
+        
+        for match in matches:
+            peer_pubkey = match.get_peer(pubkey)
+            
+            # Get nickname from contacts or server
+            contacts = storage.get_contacts()
+            contact = contacts.get(peer_pubkey, {})
+            nick = contact.get("nickname", "@unknown")
+            
+            # Try to fetch from server if not in contacts
+            if not contact:
+                try:
+                    agent = api.get_agent(peer_pubkey)
+                    if agent and agent.nickname:
+                        nick = agent.nickname
+                except Exception:
+                    pass
+            
+            created = datetime.fromtimestamp(match.created_at / 1000).strftime("%Y-%m-%d %H:%M")
+            
+            nick_with_at = nick if nick.startswith("@") else f"@{nick}"
+            console.print(f"[green]Nickname:[/green] {nick_with_at}")
+            console.print(f"[cyan]Pubkey:[/cyan] {peer_pubkey}")
+            console.print(f"[dim]Match ID:[/dim] {match.id}")
+            console.print(f"[dim]Created:[/dim] {created}")
+            console.print("")
         
         return 0
     except Exception as e:

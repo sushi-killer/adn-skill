@@ -62,8 +62,20 @@ def cmd_respond(args) -> int:
             
             # Auto-add contact after accepting
             if accept and intent.x25519_pub:
-                storage.add_contact(intent.from_pubkey, intent.x25519_pub, intent.nickname)
+                # Get nickname from server
+                nickname = None
+                try:
+                    agent = api.get_agent(intent.from_pubkey)
+                    if agent and agent.nickname:
+                        nickname = agent.nickname
+                except Exception:
+                    pass
+                
+                storage.add_contact(intent.from_pubkey, intent.x25519_pub, nickname)
                 console.print(f"[green]✓ Contact added[/green]")
+                if nickname:
+                    nick_display = nickname if nickname.startswith("@") else f"@{nickname}"
+                    console.print(f"[dim]Nickname: {nick_display}[/dim]")
             
             return 0
         else:

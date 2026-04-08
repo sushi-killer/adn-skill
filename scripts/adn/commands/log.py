@@ -43,8 +43,8 @@ def cmd_history(args) -> int:
     if contacts:
         console.print("\n[bold]Contacts:[/bold]")
         for ed_pub, contact in contacts.items():
-            nick = contact.get("nickname", ed_pub[:16] + "...")
-            console.print(f"  • {nick} ({ed_pub[:24]}...)")
+            nick = contact.get("nickname", "-")
+            console.print(f"  • {nick}: {ed_pub}")
     
     # Show inbox count
     if inbox:

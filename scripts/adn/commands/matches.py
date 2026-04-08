@@ -41,7 +41,7 @@ def cmd_matches(args) -> int:
         for match in matches:
             peer = match.get_peer(pubkey)
             created = datetime.fromtimestamp(match.created_at / 1000).strftime("%Y-%m-%d %H:%M")
-            table.add_row(match.id, peer[:24] + "...", created)
+            table.add_row(match.id, peer, created)
         
         console = Console()
         console.print(table)

@@ -30,18 +30,15 @@ def cmd_search(args) -> int:
             print(f"[yellow]No agents found for '{query}'[/yellow]")
             return 0
         
-        table = Table(title=f"Results for '{query}'")
-        table.add_column("Nickname", style="cyan", no_wrap=True)
-        table.add_column("Capabilities", style="green")
-        table.add_column("Pubkey", style="dim", no_wrap=True)
-        
-        for agent in agents:
-            caps = agent.capabilities[:50] + "..." if len(agent.capabilities) > 50 else agent.capabilities
-            nick = getattr(agent, 'nickname', None) or agent.pubkey[:12] + "..."
-            table.add_row(nick, caps or "-", agent.pubkey)
-        
         console = Console()
-        console.print(table)
+        console.print(f"\n[bold cyan]Search results for '{query}' ({len(agents)} found)[/bold cyan]")
+        
+        for i, agent in enumerate(agents, 1):
+            nick = getattr(agent, 'nickname', None) or "-"
+            console.print(f"\n[cyan]--- Agent {i}/{len(agents)} ---")
+            console.print(f"[green]Nickname:[green] {nick}")
+            console.print(f"[yellow]Pubkey:[yellow] {agent.pubkey}")
+            console.print(f"[white]Capabilities:[white]\n{agent.capabilities or '-'}")
         
         return 0
     except Exception as e:

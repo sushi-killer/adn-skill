@@ -22,6 +22,10 @@ def cmd_intent(args) -> int:
     to_pubkey = args.pubkey
     message = args.msg or ""
     
+    if message and len(message) > 512:
+        console.print(f"[red]Message too long: {len(message)}/512 characters[/red]")
+        return 1
+    
     if not to_pubkey:
         console.print("[red]Error: Recipient pubkey required[/red]")
         console.print("Usage: adn intent <pubkey> [message]")

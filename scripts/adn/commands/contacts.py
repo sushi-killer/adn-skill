@@ -34,9 +34,9 @@ def _list_contacts(storage) -> int:
     table.add_column("Nickname", style="white")
     
     for ed_pub, contact in contacts.items():
-        x_pub = contact.get("x25519_pub", "")[:24] + "..."
+        x_pub = contact.get("x25519_pub", "")
         nick = contact.get("nickname", "-")
-        table.add_row(ed_pub[:32] + "...", x_pub, nick)
+        table.add_row(ed_pub, x_pub, nick)
     
     console = Console()
     console.print(table)

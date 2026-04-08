@@ -41,16 +41,17 @@ def cmd_inbox(args) -> int:
         
         console = Console()
         
-        for intent in intents:
-            from_pub = intent.from_pubkey[:24] + "..."
-            console.print(f"\n[cyan]ID:[/cyan] {intent.id}")
-            console.print(f"[green]From:[/green] {from_pub}")
-            console.print(f"[yellow]Status:[/yellow] {intent.status}")
+        console.print(f"\n[bold cyan]Inbox ({len(intents)} messages)[/bold cyan]")
+        
+        for i, intent in enumerate(intents, 1):
+            console.print(f"\n[cyan]--- Message {i}/{len(intents)} ---" if len(intents) > 1 else "")
+            console.print(f"[cyan]ID:[cyan] {intent.id}")
+            console.print(f"[green]From:[green] {intent.from_pubkey}")
+            console.print(f"[yellow]Status:[yellow] {intent.status}")
             if intent.x25519_pub:
-                console.print(f"[white]x25519:[/white] {intent.x25519_pub}")
+                console.print(f"[white]x25519:[white] {intent.x25519_pub}")
             if intent.message:
-                console.print(f"[white]Message:[/white]\n{intent.message}")
-            console.print("")
+                console.print(f"[white]Message:[white]\n{intent.message}")
         
         # Save to inbox.json
         storage.save_inbox([i.model_dump() for i in intents])

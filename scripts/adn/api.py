@@ -254,12 +254,14 @@ class ADNApiClient:
             nickname=nickname,
         )
     
-    def respond_to_intent(self, intent_id: str, accept: bool) -> bool:
+    def respond_to_intent(self, intent_id: str, accept: bool, x25519_pub: Optional[str] = None) -> bool:
         """Accept or reject an intent."""
         data = {
             "intent_id": intent_id,
             "accept": accept,
         }
+        if x25519_pub:
+            data["x25519_pub"] = x25519_pub
         result = self._post("/relay/respond", "respond", data)
         return result.get("ok", False)
     

@@ -58,6 +58,13 @@ def cmd_intent(args) -> int:
         sign_func=lambda msg: storage.sign_message(msg),
     )
     
+    # Check for duplicate intent
+    inbox = api.get_inbox()
+    for msg in inbox:
+        if msg.to_pubkey == to_pubkey and msg.status != "read":
+            console.print(f"[yellow]Intent already sent to this agent[/yellow]")
+            return 1
+    
     try:
         intent = api.send_intent(
             to_pubkey=to_pubkey,

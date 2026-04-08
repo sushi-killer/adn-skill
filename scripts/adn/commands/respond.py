@@ -43,8 +43,10 @@ def cmd_respond(args) -> int:
         sign_func=lambda msg: storage.sign_message(msg),
     )
     
+    x25519_pub = storage.get_x25519_pub()
+    
     try:
-        success = api.respond_to_intent(intent_id, accept)
+        success = api.respond_to_intent(intent_id, accept, x25519_pub)
         
         if success:
             action = "accepted" if accept else "rejected"

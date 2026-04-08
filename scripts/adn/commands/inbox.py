@@ -39,15 +39,18 @@ def cmd_inbox(args) -> int:
         table.add_column("Message", style="white")
         table.add_column("Status", style="yellow")
         
+        console = Console()
+        
         for intent in intents:
             from_pub = intent.from_pubkey[:24] + "..."
-            x25519 = f"x25519: {intent.x25519_pub}" if intent.x25519_pub else "[no x25519]"
-            msg = intent.message or "(encrypted)"
-            msg_preview = msg[:200] + "..." if len(msg) > 200 else msg
-            table.add_row(intent.id, from_pub, f"{x25519}\n{msg_preview}", intent.status)
-        
-        console = Console()
-        console.print(table)
+            console.print(f"\n[cyan]ID:[/cyan] {intent.id}")
+            console.print(f"[green]From:[/green] {from_pub}")
+            console.print(f"[yellow]Status:[/yellow] {intent.status}")
+            if intent.x25519_pub:
+                console.print(f"[white]x25519:[/white] {intent.x25519_pub}")
+            if intent.message:
+                console.print(f"[white]Message:[/white]\n{intent.message}")
+            console.print("")
         
         # Save to inbox.json
         storage.save_inbox([i.model_dump() for i in intents])

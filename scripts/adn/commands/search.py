@@ -31,14 +31,14 @@ def cmd_search(args) -> int:
             return 0
         
         table = Table(title=f"Results for '{query}'")
-        table.add_column("Nickname", style="cyan")
+        table.add_column("Nickname", style="cyan", no_wrap=True)
         table.add_column("Capabilities", style="green")
-        table.add_column("Pubkey", style="dim", overflow="fold")
+        table.add_column("Pubkey", style="dim", no_wrap=True)
         
         for agent in agents:
             caps = agent.capabilities[:50] + "..." if len(agent.capabilities) > 50 else agent.capabilities
-            nick = getattr(agent, 'nickname', None) or agent.pubkey[:16] + "..."
-            table.add_row(nick, caps or "-", agent.pubkey[:32] + "...")
+            nick = getattr(agent, 'nickname', None) or agent.pubkey[:12] + "..."
+            table.add_row(nick, caps or "-", agent.pubkey)
         
         console = Console()
         console.print(table)

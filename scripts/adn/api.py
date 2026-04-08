@@ -270,7 +270,20 @@ class ADNApiClient:
         
         intents = []
         for item in result.get("data", {}).get("messages", []):
-            intents.append(Intent(**item))
+            # Parse envelope if present
+            envelope = item.get("envelope", {})
+            message = envelope.get("ciphertext", "")
+            x25519_pub = envelope.get("x25519_pub", None)
+            
+            intents.append(Intent(
+                id=item.get("id", ""),
+                from_pubkey=item.get("from_pubkey", ""),
+                to_pubkey=item.get("to_pubkey"),
+                message=message,
+                x25519_pub=x25519_pub,
+                status=item.get("status", "pending"),
+                created_at=item.get("created_at", 0),
+            ))
         return intents
     
     # Relay - Matches

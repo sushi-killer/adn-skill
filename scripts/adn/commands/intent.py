@@ -74,7 +74,7 @@ def cmd_intent(args) -> int:
         )
         
         console.print(f"[green]✓ Intent sent![/green]")
-        console.print(f"  To: {to_pubkey[:24]}...")
+        console.print(f"  To: {to_pubkey}")
         console.print(f"  Intent ID: {intent.id}")
         
         # Optionally save contact for future messaging
